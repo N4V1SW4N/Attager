@@ -1,21 +1,36 @@
 {
     "name": "Delivery Agent",
-    "description": "delivery_agent.description",
-    "url": "http://${DELIVERY_AGENT_HOST:-localhost}:10001",
+    "description": "Redis에 저장된 배송 정보를 조회하는 에이전트",
+    "protocolVersion": "0.2.9",
+    "url": "http://localhost:10102/",
     "version": "1.0.0",
-    "defaultInputModes": ["text", "text/plain"],
-    "defaultOutputModes": ["text", "text/plain"],
     "capabilities": {
-      "streaming": true
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
     },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
     "skills": [
       {
-        "id": "delivery_agent",
-        "name": "read delivery data",
-        "description": "Read requested delivery data from database",
-        "tags": ["delivery"],
+        "id": "delivery_lookup",
+        "name": "Delivery Lookup",
+        "description": "주문번호별 배송 상태, 전체 배송 목록, 완료된 배송 수를 조회할 수 있다",
+        "tags": [
+          "delivery",
+          "order tracking",
+          "shipping"
+        ],
         "examples": [
-          "Read delivery data for ORD1001"
+          "ORD1001 주문 상태 알려줘",
+          "모든 배송 데이터 보여줘",
+          "완료된 배송 수 알려줘"
         ]
       }
     ]

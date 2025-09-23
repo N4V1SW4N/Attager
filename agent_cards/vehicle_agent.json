@@ -1,21 +1,40 @@
 {
     "name": "Vehicle Agent",
-    "description": "vehicle_agent.description",
-    "url": "http://${VEHICLE_AGENT_HOST:-localhost}:10004",
+    "description": "운행가능 차량과 배송 투입 차량의 가용 여부 및 운행 상태를 관리하는 에이전트",
+    "protocolVersion": "0.2.9",
+    "url": "http://localhost:10105/",
     "version": "1.0.0",
-    "defaultInputModes": ["text", "text/plain"],
-    "defaultOutputModes": ["text", "text/plain"],
     "capabilities": {
-      "streaming": true
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
     },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
     "skills": [
       {
-        "id": "vehicle_agent",
-        "name": "read vehicle data",
-        "description": "Read requested vehicle data from database",
-        "tags": ["vehicle"],
+        "id": "vehicle_management",
+        "name": "Vehicle Management",
+        "description": "차량 가용 현황, 상태 조회, 정비 스케줄, 적재 용량, 최적 차량 추천 등을 수행한다",
+        "tags": [
+          "vehicle",
+          "fleet",
+          "dispatch",
+          "maintenance"
+        ],
         "examples": [
-          "현재 가용한 차량 현황을 확인해줘"
+          "전체 차량 가용 현황 알려줘",
+          "차량 VHC001 상태 조회해줘",
+          "현재 정비 중인 차량 목록 보여줘",
+          "리콜에 배정된 차량 리스트 알려줘",
+          "차량 VHC002의 적재 용량 알려줘",
+          "배송 경로에 최적 차량 추천해줘"
         ]
       }
     ]

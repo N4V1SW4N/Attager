@@ -1,21 +1,36 @@
 {
     "name": "Item Agent",
-    "description": "delivery_agent.description",
-    "url": "http://${ITEM_AGENT_HOST:-localhost}:10002",
+    "description": "상품 정보를 관리하고, 재고를 추적하며, 상품 관련 작업을 처리하는 에이전트",
+    "protocolVersion": "0.2.9",
+    "url": "http://localhost:10103/",
     "version": "1.0.0",
-    "defaultInputModes": ["text", "text/plain"],
-    "defaultOutputModes": ["text", "text/plain"],
     "capabilities": {
-      "streaming": true
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
     },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
     "skills": [
       {
-        "id": "item_agent",
-        "name": "read item data",
-        "description": "Read requested item data from database",
-        "tags": ["item"],
+        "id": "item_management",
+        "name": "Item Management",
+        "description": "상품 상세 조회 및 재고 추적을 수행한다",
+        "tags": [
+          "item",
+          "inventory",
+          "product management"
+        ],
         "examples": [
-          "Read item data for ITEM1001"
+          "ITEM001 상품 상세 정보 알려줘",
+          "재고 수량 확인해줘",
+          "ITEM002 상품 상태 업데이트해줘"
         ]
       }
     ]

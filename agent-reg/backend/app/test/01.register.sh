@@ -1,19 +1,23 @@
 #!/bin/bash
 
-# ... existing code ...
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENT_CARDS_DIR="$SCRIPT_DIR/../../../../agent_cards"
 
-# Directory containing agent card JSON files
-AGENT_CARDS_DIR="/home/agents/agent_cards"
+echo "Looking for agent cards in: $AGENT_CARDS_DIR"
 
-# Iterate over each JSON file in the directory and register the agent
-for file in "$AGENT_CARDS_DIR"/*.json; do
-  if [ -f "$file" ]; then
-    echo "Registering agent from $file..."
-    curl -X POST "http://localhost:8000/agents/register" \
-         -H "Content-Type: application/json" \
-         -d "@$file"
-    echo -e "\n" # Add a newline for better readability between registrations
-  fi
+shopt -s nullglob
+files=("$AGENT_CARDS_DIR"/*.json)
+if [ ${#files[@]} -eq 0 ]; then
+  echo "❌ No JSON files found in $AGENT_CARDS_DIR"
+  exit 1
+fi
+
+for file in "${files[@]}"; do
+  echo "Registering agent from $file..."
+  curl -X POST "http://localhost:8000/agents/register" \
+       -H "Content-Type: application/json" \
+       -d "@$file"
+  echo -e "\n"
 done
 
-echo "All agents from $AGENT_CARDS_DIR registered."
+echo "✅ All agents from $AGENT_CARDS_DIR registered."

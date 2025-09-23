@@ -1,0 +1,40 @@
+{
+    "name": "Strategy & Simulator Agent",
+    "description": "품질, 배송, 차량, 입고 에이전트들의 응답을 종합하여 물류 운영의 전략적 판단과 시뮬레이션 결과를 제공하는 에이전트",
+    "protocolVersion": "0.2.9",
+    "url": "http://localhost:10110/",
+    "version": "1.0.0",
+    "capabilities": {
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
+    "skills": [
+      {
+        "id": "strategy_simulation",
+        "name": "Strategy Simulation",
+        "description": "품질, 배송, 차량, 입고 데이터를 종합 분석하여 리스크를 평가하고 최적 전략 및 시뮬레이션 결과를 제안한다",
+        "tags": [
+          "strategy",
+          "simulation",
+          "logistics",
+          "orchestration"
+        ],
+        "examples": [
+          "품질, 배송, 차량, 입고 상태를 종합해서 리스크 요약해줘",
+          "현재 상황을 기반으로 최적 배송 전략을 제안해줘",
+          "차량 부족과 재고 문제를 고려한 시뮬레이션 결과를 알려줘",
+          "전체 시스템 상태를 분석하고 전략적 권고안을 제시해줘"
+        ]
+      }
+    ]
+  }
+  

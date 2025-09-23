@@ -1,21 +1,37 @@
 {
     "name": "Quality Agent",
-    "description": "quality_agent.description",
-    "url": "http://${QUALITY_AGENT_HOST:-localhost}:10003",
+    "description": "반품·리콜 상품의 품질 검사를 수행하고, 처분 및 재고 상태를 관리하는 에이전트",
+    "protocolVersion": "0.2.9",
+    "url": "http://localhost:10104/",
     "version": "1.0.0",
-    "defaultInputModes": ["text", "text/plain"],
-    "defaultOutputModes": ["text", "text/plain"],
     "capabilities": {
-      "streaming": true
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
     },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
     "skills": [
       {
-        "id": "quality_agent",
-        "name": "read quality data",
-        "description": "Read requested quality data from database",
-        "tags": ["quality"],
+        "id": "quality_management",
+        "name": "Quality Management",
+        "description": "반품 상품 품질 검사, 최종 처분 결정, 리콜 대상 상품 조회를 수행한다",
+        "tags": [
+          "quality",
+          "return",
+          "recall",
+          "inspection"
+        ],
         "examples": [
-          "item1001의 품질 상태를 확인하고 처분 재판매로 해줘줘"
+          "품질 검사가 필요한 반품 상품 알려줘",
+          "반품 상품 ITEM002 최종 처분 조회해줘",
+          "제품 ID ITEM005의 리콜 대상 상품 리스트 알려줘"
         ]
       }
     ]
