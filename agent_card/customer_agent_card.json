@@ -1,0 +1,37 @@
+{
+    "name": "CustomerAgent",
+    "description": "customer_agent.description",
+    "protocolVersion": "1.0",
+    "url": "http://localhost:10008",
+    "version": "1.0.0",
+    "capabilities": {
+      "streaming": true,
+      "pushNotifications": true,
+      "stateTransitionHistory": false
+    },
+    "defaultInputModes": [
+      "text",
+      "text/plain"
+    ],
+    "defaultOutputModes": [
+      "text",
+      "text/plain"
+    ],
+    "skills": [
+      {
+        "id": "customer_management",
+        "name": "Customer Management",
+        "description": "고객 기본 정보와 구매 내역을 조회한다",
+        "tags": [
+          "customer",
+          "crm",
+          "purchase history"
+        ],
+        "examples": [
+          "홍길동 기본 정보 알려줘",
+          "김철수 구매 내역 보여줘"
+        ]
+      }
+    ]
+  }
+  

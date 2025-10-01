@@ -1,0 +1,21 @@
+{
+  "name": "Bridge_Agent",
+  "description": "사용자 지원 에이전트: 어떤 질문에도 00팀에 문의하도록 안내합니다.",
+  "protocolVersion": "1.0",
+  "url": "http://localhost:10009",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "stateTransitionHistory": false
+  },
+  "defaultInputModes": [
+    "text",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text",
+    "text/plain"
+  ],
+  "skills": []
+}
