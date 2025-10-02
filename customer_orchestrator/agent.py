@@ -22,43 +22,32 @@ from utils.model_config import get_model_with_fallback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
 # --- 1. AgentCard 로더 ---
 
 def load_agent_cards(tool_context) -> List[str]:
     """
-    지정된 디렉토리에서 에이전트 카드 JSON 파일을 읽어 state에 저장,
+    레지스트리 서버에서 에이전트 카드 목록을 조회해서 state에 저장,
     에이전트 이름 리스트 반환
     """
-    agent_card_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "agent_card")
+    url = "http://localhost:8000/agents"
+    resp = httpx.get(url)
+    resp.raise_for_status()
+    agents_data = resp.json()  # 레지스트리에서 내려주는 JSON 배열
+
     cards = {}
+    for data in agents_data:
+        # ✅ dict → AgentCard 변환 (pydantic v1/v2 호환)
+        if hasattr(AgentCard, "model_validate"):   # pydantic v2
+            card = AgentCard.model_validate(data)
+        else:  # pydantic v1
+            card = AgentCard.parse_obj(data)
 
-    if not os.path.exists(agent_card_dir):
-        logger.warning(f"Agent card directory not found: {agent_card_dir}")
-        tool_context.state["cards"] = {}
-        return []
-
-    for filename in os.listdir(agent_card_dir):
-        if filename.endswith(".json"):
-            filepath = os.path.join(agent_card_dir, filename)
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    # ✅ dict → AgentCard 변환 (pydantic v1/v2 호환)
-                    if hasattr(AgentCard, "model_validate"):   # pydantic v2
-                        card = AgentCard.model_validate(data)
-                    else:  # pydantic v1
-                        card = AgentCard.parse_obj(data)
-
-                    name = getattr(card, "name", None) or card.url or "unknown_agent"
-                    cards[name] = card
-            except (json.JSONDecodeError, Exception) as e:
-                logger.error(f"Error loading agent card from {filepath}: {e}")
+        name = getattr(card, "name", None) or card.url or "unknown_agent"
+        cards[name] = card
 
     # state에 저장
     tool_context.state["cards"] = cards
     return list(cards.keys())
-
 
 # --- 2. Remote Agent 호출 ---
 
