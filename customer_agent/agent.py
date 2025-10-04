@@ -1,29 +1,71 @@
 # customer_agent.py
 import asyncio
 import os
+import logging
 from google.adk.agents import LlmAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.models.lite_llm import LiteLlm
 from google.genai import types
+from google.adk.tools import FunctionTool
+import sys
+from dotenv import load_dotenv
+
+# Ensure project root is importable for utils
+sys.path.insert(0, '.')
+
+# Load local .env if present
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+try:
+    from utils.model_config import get_model_with_fallback
+except Exception:
+    # Final local fallback if utils import fails
+    ollama_host = os.getenv("OLLAMA_HOST", "localhost")
+
+    def get_model_with_fallback():
+        return LiteLlm(
+            model="ollama_chat/gpt-oss:20b",
+            api_base=f"http://{ollama_host}:11434",
+            temperature=0.7,
+        )
 
 # CustomerTool 불러오기
 from .customer_tool import CustomerTool
 
 # --- 1. Agent 정의 ---
-LITELLM_MODEL = os.getenv("LITELLM_MODEL", "gemini-2.5-flash")
 customer_tool = CustomerTool()
 
+# Gemini 우선, 실패시 로컬 LLM 사용
+try:
+    model = get_model_with_fallback()
+    logger.info(f"CustomerAgent 모델 설정 완료: {type(model).__name__ if hasattr(model, '__class__') else model}")
+except Exception as e:
+    logger.error(f"CustomerAgent 모델 설정 실패: {e}")
+    # 최후의 fallback
+    ollama_host = os.getenv("OLLAMA_HOST", "localhost")
+    model = LiteLlm(
+        model="ollama_chat/gpt-oss:20b",
+        api_base=f"http://{ollama_host}:11434",
+        temperature=0.7,
+    )
+    logger.info("CustomerAgent 최후 fallback으로 로컬 LLM 사용")
+
+def query_customer(name: str):
+    return customer_tool.query(name)
+
 root_agent = LlmAgent(
-    model=LiteLlm(model=LITELLM_MODEL),
+    model=model,
     name="CustomerAgent",
-    description="고객 이름으로 기본 정보와 구매 내역을 조회하는 에이전트",
+    description="고객 이름으로 기본 정보와 구매 내역을 조회하는 에이전트 - Gemini/Local LLM hybrid",
     instruction="""너는 고객 관리 에이전트다.
-    - 사용자가 고객 이름을 말하면 반드시 CustomerTool.query(name) 툴을 호출해야 한다.
+    - 사용자가 고객 이름을 말하면 반드시 query_customer 툴을 호출해야 한다.
     - 고객 기본 정보(이름, 나이, 주소, 연락처)와 구매 내역(상품명, 수량, 구매일자, 가격)을 Markdown 형식으로 정리해서 보여줘.
     - 임의로 정보를 만들어내지 말고, 반드시 툴의 응답만 사용해라.
     """,
-    tools=[customer_tool.query],
+    tools=[FunctionTool(query_customer)],
 )
 
 # --- 2. Runner + 세션 서비스 ---

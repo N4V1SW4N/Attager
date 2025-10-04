@@ -1,5 +1,4 @@
 import os
-import json
 from typing import List
 import logging
 import httpx
@@ -22,6 +21,7 @@ from utils.model_config import get_model_with_fallback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
 # --- 1. AgentCard 로더 ---
 
 def load_agent_cards(tool_context) -> List[str]:
@@ -48,6 +48,7 @@ def load_agent_cards(tool_context) -> List[str]:
     # state에 저장
     tool_context.state["cards"] = cards
     return list(cards.keys())
+
 
 # --- 2. Remote Agent 호출 ---
 

@@ -9,13 +9,13 @@ from a2a.types import (
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from .agent import root_agent as orchestrator_agent
-from .agent_executor import ADKAgentExecutor
+from agent import root_agent as orchestrator_agent
+from agent_executor import ADKAgentExecutor
 
 
 def main(inhost, inport):    # Agent card (metadata)
     agent_card = AgentCard(
-        name='customer_orchestrator',
+        name='Orchestrator Agent',
         description=orchestrator_agent.description,
         url=f'http://{inhost}:{inport}',
         version="1.0.0",

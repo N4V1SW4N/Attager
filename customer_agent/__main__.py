@@ -1,6 +1,3 @@
-import logging
-import os
-
 import click
 import uvicorn
 
@@ -12,66 +9,50 @@ from a2a.types import (
     AgentCard,
     AgentSkill,
 )
-from dotenv import load_dotenv
-from google.adk.artifacts import InMemoryArtifactService
-from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from .agent import root_agent
-from .customer_executor import CustomerExecutor
-
-load_dotenv()
-logging.basicConfig()
+from .agent import root_agent as customer_agent
+from .agent_executor import ADKAgentExecutor
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 10008
 
 
 def main(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT):
-    # API 키 확인
-    if os.getenv("GOOGLE_GENAI_USE_VERTEXAI") != "TRUE" and not os.getenv("GOOGLE_API_KEY"):
-        raise ValueError(
-            "GOOGLE_API_KEY environment variable not set and "
-            "GOOGLE_GENAI_USE_VERTEXAI is not TRUE."
-        )
-
-    # 스킬 정의
-    skill = AgentSkill(
-        id="customer_lookup",
-        name="Lookup Customer",
-        description="고객 이름을 입력하면 주소, 나이, 구매 상품을 알려줍니다.",
-        tags=["customer", "order", "crm"],
-        examples=["홍길동 정보 보여줘", "김철수 구매 내역"],
-    )
-
-    app_url = os.environ.get("APP_URL", f"http://{host}:{port}")
-
+    # Agent card (metadata)
     agent_card = AgentCard(
         name="Customer Agent",
-        description="고객 정보를 관리하고 구매 내역을 조회하는 에이전트",
-        url=app_url,
+        description=customer_agent.description,
+        url=f"http://{host}:{port}",
         version="1.0.0",
-        default_input_modes=["text"],
-        default_output_modes=["text"],
+        defaultInputModes=["text", "text/plain"],
+        defaultOutputModes=["text", "text/plain"],
         capabilities=AgentCapabilities(streaming=True),
-        skills=[skill],
+        skills=[
+            AgentSkill(
+                id="customer_agent",
+                name="lookup customer info and purchases",
+                description="Lookup customer profile and purchase history by customer name",
+                tags=["customer", "crm", "orders"],
+                examples=[
+                    "홍길동 정보 보여줘",
+                    "김철수 구매 내역",
+                ],
+            )
+        ],
     )
 
-    runner = Runner(
-        app_name=agent_card.name,
-        agent=root_agent,
-        artifact_service=InMemoryArtifactService(),
-        session_service=InMemorySessionService(),
-        memory_service=InMemoryMemoryService(),
+    request_handler = DefaultRequestHandler(
+        agent_executor=ADKAgentExecutor(
+            agent=customer_agent,
+        ),
+        task_store=InMemoryTaskStore(),
     )
-    agent_executor = CustomerExecutor(runner, agent_card)
 
-    request_handler = DefaultRequestHandler(agent_executor=agent_executor, task_store=InMemoryTaskStore())
+    server = A2AStarletteApplication(
+        agent_card=agent_card,
+        http_handler=request_handler,
+    )
 
-    a2a_app = A2AStarletteApplication(agent_card=agent_card, http_handler=request_handler)
-
-    uvicorn.run(a2a_app.build(), host=host, port=port)
-
+    uvicorn.run(server.build(), host=host, port=port)
 
 
 @click.command()
