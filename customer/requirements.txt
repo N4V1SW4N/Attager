@@ -21,3 +21,4 @@ pytest-asyncio    # Async testing support
 
 # Additional utilities
 httpx             # Async HTTP client (used by agents)
+click             # CLI parsing used in customer_agent __main__.py

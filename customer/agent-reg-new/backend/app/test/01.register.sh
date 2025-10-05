@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AGENT_CARDS_DIR="/home/ubuntu-woojin/바탕화면/Attager/agent_card"
+AGENT_CARDS_DIR="$SCRIPT_DIR/../../../../agent_card"
 
 echo "Looking for agent cards in: $AGENT_CARDS_DIR"
 
