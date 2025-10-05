@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY utils/ ./utils/
 
 # Copy orchestrator files
-COPY Orchestrator_new/ .
+COPY customer_orchestrator/ .
 
 # Expose port
 EXPOSE 10000
