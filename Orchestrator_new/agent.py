@@ -135,6 +135,10 @@ root_agent = LlmAgent(
         "'call_remote_agent'는 에이전트를 호출하는 도구이다\n"
         "   (에이전트 카드에서 agent_name과 task를 파라미터로 넣어 호출해야 한다)\n"
         "'return_result'에는 너가 사용자에게 응답할 내용을 적고 사용자에게 반환해\n"
+        "반드시 다음을 지켜라:\n"
+        "1) 'call_remote_agent' 호출 → 내부적으로 결과를 state['last_result']에 저장하고 빈 문자열을 반환한다.\n"
+        "2) 바로 'return_result(state[\"last_result\"])'를 정확히 한 번만 호출한다.\n"
+        "3) 그 외 어떠한 어시스턴트 텍스트도 출력하지 말고, 'return_result' 이후에는 다른 도구를 호출하지 마라.\n"
     ),
     description="LLM 기반 Root Orchestrator Agent (multi-agent coordination) - Gemini/Local LLM hybrid",
     tools=[FunctionTool(load_agent_cards), FunctionTool(call_remote_agent), FunctionTool(return_result)],

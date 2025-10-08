@@ -11,6 +11,14 @@ Attager는 Google Gemini API를 활용한 지능형 다중 에이전트 물류 �
 - **📊 실시간 데이터**: Redis 기반 실시간 데이터 처리
 - **🔗 A2A 통신**: Agent-to-Agent 프로토콜을 통한 에이전트 간 통신
 
+## 🆕 최근 변경 사항
+
+- 레거시 `Orchestrator/` 패키지를 정리하고 `Orchestrator_new`만 유지했습니다. 기본 바인딩 호스트가 `127.0.0.1` → `0.0.0.0`으로 변경되어 다른 호스트에서도 접속할 수 있습니다.
+- 모든 에이전트의 `__main__.py`가 상대 임포트를 사용하도록 수정되어 반드시 **프로젝트 루트에서** `python -m agents.<name>` 형태로 실행해야 합니다.
+- 신규 `run_all.sh` 스크립트가 추가되어 오케스트레이터/에이전트 일괄 실행과 종료가 가능하며, 백그라운드 구동 시 로그(`logs/`)와 PID 파일(`.agent_pids`)을 자동 관리합니다.
+- 오케스트레이터는 이제 ADK Registry(`http://localhost:8000`)에서 에이전트 카드를 자동으로 불러옵니다. `agent_cards/` 폴더에 `Bridge_Agent` 카드가 추가되었고, 배송 에이전트 카드의 URL 예시가 사내망(`192.168.10.10`) 기준으로 업데이트되었습니다.
+- 각 에이전트 모듈은 더 이상 ADK Registry에 자동 등록하지 않습니다. 필요 시 `agent_cards/*.json`을 최신 환경에 맞게 수정하거나 별도 등록 파이프라인을 사용하세요.
+
 ## 🏗️ 시스템 아키텍처
 
 ```mermaid
@@ -73,6 +81,13 @@ flowchart TD
   - 차량 상태 확인 (`get_vehicle_status`)
   - 최적 차량 추천 (`recommend_optimal_vehicles`)
 
+### 6. **Bridge Agent** (에이전트 카드, 포트: 10007)
+- **역할**: 고객팀 ↔ 물류팀 간 브릿지 라우팅
+- **특징**:
+  - `agent_cards/bridge_agent.json`으로 Registry에 등록
+  - 교차 팀 질문을 분석해 적절한 도메인 에이전트에게 질의
+  - 기본 URL은 예시로 `http://192.168.10.1:10007`로 설정되어 있으며, 실제 배포 환경에 맞게 수정 필요
+
 ## ⚙️ 설정 및 설치
 
 ### 1. 환경 설정
@@ -84,7 +99,7 @@ flowchart TD
 GOOGLE_API_KEY=your_google_api_key_here
 GOOGLE_GENAI_USE_VERTEXAI=FALSE
 USE_GEMINI=true
-FALLBACK_TO_LOCAL=true
+FALLBACK_TO_LOCAL=false  # 필요 시 true로 변경해 로컬 LLM fallback 활성화
 OLLAMA_HOST=host.docker.internal
 ```
 
@@ -113,13 +128,37 @@ pip install -r requirements.txt
 # Redis 실행 (Docker)
 docker run -d --name logistics-redis -p 6379:6379 redis:7-alpine
 
-# Orchestrator 실행
-cd Orchestrator_new
-python __main__.py
+# Orchestrator 실행 (프로젝트 루트에서)
+python -m Orchestrator_new
 
-# 개별 에이전트 실행 (예: Delivery Agent)
-cd agents/delivery_agent
-python __main__.py
+# 개별 에이전트 실행 (프로젝트 루트에서)
+python -m agents.delivery_agent
+python -m agents.item_agent
+python -m agents.vehicle_agent
+python -m agents.qulity_agent
+```
+
+> ℹ️ 상대 임포트가 적용되어 있으므로 반드시 프로젝트 루트에서 실행하거나, 패키지를 설치한 가상환경에서 `python -m ...` 형태로 실행하세요.
+
+### 3-1. run_all.sh로 일괄 실행
+
+```bash
+# 권장: 가상환경 활성화 후 실행
+bash ./run_all.sh start               # 자동 판단: GUI면 새 터미널, 없으면 tmux, 둘 다 없으면 백그라운드
+
+# 모드 지정
+bash ./run_all.sh --mode=term start   # 새 터미널 창으로 각각 실행 (gnome-terminal/konsole/xterm 필요)
+bash ./run_all.sh --mode=tmux start   # tmux 세션(agents)으로 실행 → 접속: tmux attach -t agents
+bash ./run_all.sh --mode=bg start     # 백그라운드 실행 (logs/ 에 로그, .agent_pids에 PID 기록)
+
+# 오케스트레이터 제외
+bash ./run_all.sh --no-orchestrator start
+
+# 중지
+bash ./run_all.sh stop
+
+# sudo가 꼭 필요하면 파이썬 경로를 명시해 실행 (가상환경 등)
+sudo PYTHON="$(which python)" bash ./run_all.sh --mode=bg start
 ```
 
 ### 4. Google ADK 웹 인터페이스로 테스트 (개발용)
@@ -181,6 +220,7 @@ adk web
 - **Item Agent**: http://localhost:10002
 - **Quality Agent**: http://localhost:10003
 - **Vehicle Agent**: http://localhost:10004
+- **Bridge Agent**: http://192.168.10.1:10007 *(예시 값, 환경에 맞게 조정)*
 - **Registry server**: http://localhost:8000
 - **Registry Frontend**: http://localhost:3000
 - **Redis**: localhost:6379

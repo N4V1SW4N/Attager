@@ -9,8 +9,8 @@ from a2a.types import (
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from agent import root_agent as orchestrator_agent
-from agent_executor import ADKAgentExecutor
+from .agent import root_agent as orchestrator_agent
+from .agent_executor import ADKAgentExecutor
 
 
 def main(inhost, inport):    # Agent card (metadata)
@@ -51,4 +51,4 @@ def main(inhost, inport):    # Agent card (metadata)
 
 
 if __name__ == "__main__":
-    main("127.0.0.1", 10000)
+    main("0.0.0.0", 10000)
