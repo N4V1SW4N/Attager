@@ -25,7 +25,7 @@ COPY utils/ ./utils/
 COPY customer_agent/ ./customer_agent/
 
 # Expose service port
-EXPOSE 10008
+EXPOSE 10006
 
 # Default environment toggles (can be overridden at run-time)
 ENV USE_GEMINI=true \
@@ -33,6 +33,6 @@ ENV USE_GEMINI=true \
     GOOGLE_GENAI_USE_VERTEXAI=FALSE
 
 # Run the customer agent server
-CMD ["python", "-m", "customer_agent", "--host", "0.0.0.0", "--port", "10008"]
+CMD ["python", "-m", "customer_agent", "--host", "0.0.0.0", "--port", "10006"]
 
 

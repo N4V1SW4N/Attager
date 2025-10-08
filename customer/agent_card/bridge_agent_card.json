@@ -2,7 +2,7 @@
   "name": "Bridge_Agent",
   "description": "브릿지 에이전트: 고객팀/물류팀 직원이 자기 팀 범위를 벗어난 질문을 하면 적절한 팀 에이전트에게 라우팅하여 대신 응답을 전달합니다.",
   "protocolVersion": "1.0",
-  "url": "http://192.168.20.10:10009",
+  "url": "http://192.168.20.10:10007",
   "version": "1.0.0",
   "capabilities": {
     "streaming": true,

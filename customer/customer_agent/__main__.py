@@ -13,7 +13,7 @@ from .agent import root_agent as customer_agent
 from .agent_executor import ADKAgentExecutor
 
 DEFAULT_HOST = "0.0.0.0"
-DEFAULT_PORT = 10008
+DEFAULT_PORT = 10006
 
 
 def main(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT):

@@ -2,7 +2,7 @@
     "name": "CustomerAgent",
     "description": "customer_agent.description",
     "protocolVersion": "1.0",
-    "url": "http://192.168.20.10:10008",
+    "url": "http://192.168.20.10:10006",
     "version": "1.0.0",
     "capabilities": {
       "streaming": true,
