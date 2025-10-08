@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  # Agent Registry backend
+  agent-registry:
+    build:
+      context: ./agent-reg-new
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_PATH: /app/agent_reg.db
+    volumes:
+      - agent_reg_data:/app
+    restart: unless-stopped
+
+  # Agent Registry frontend
+  agent-registry-frontend:
+    build:
+      context: ./agent-reg-new/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - agent-registry
+    restart: unless-stopped
+
+  # Customer Agent service
+  customer-agent:
+    build:
+      context: .
+      dockerfile: customer_agent/Dockerfile
+    environment:
+      # Toggle Gemini vs local fallback
+      USE_GEMINI: ${USE_GEMINI:-true}
+      FALLBACK_TO_LOCAL: ${FALLBACK_TO_LOCAL:-true}
+      # Use Google AI Studio API key path by default; set to FALSE to avoid Vertex
+      GOOGLE_GENAI_USE_VERTEXAI: ${GOOGLE_GENAI_USE_VERTEXAI:-FALSE}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # Optional Vertex ADC
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      VERTEXAI_PROJECT: ${VERTEXAI_PROJECT:-}
+      VERTEXAI_LOCATION: ${VERTEXAI_LOCATION:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-host.docker.internal}
+    ports:
+      - "10006:10006"
+    depends_on:
+      - agent-registry
+    restart: unless-stopped
+
+  # Orchestrator service
+  customer-orchestrator:
+    build:
+      context: .
+      dockerfile: customer_orchestrator/Dockerfile
+    environment:
+      USE_GEMINI: ${USE_GEMINI:-true}
+      FALLBACK_TO_LOCAL: ${FALLBACK_TO_LOCAL:-true}
+      GOOGLE_GENAI_USE_VERTEXAI: ${GOOGLE_GENAI_USE_VERTEXAI:-FALSE}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      VERTEXAI_PROJECT: ${VERTEXAI_PROJECT:-}
+      VERTEXAI_LOCATION: ${VERTEXAI_LOCATION:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-host.docker.internal}
+    ports:
+      - "10005:10005"
+    depends_on:
+      - agent-registry
+      - customer-agent
+    restart: unless-stopped
+
+volumes:
+  agent_reg_data:
+
+
