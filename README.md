@@ -64,7 +64,7 @@ docker compose up -d --build
 
 ---
 
-## 🌉 Bridge VM (예: 192.168.11.10)
+## 🌉 Bridge VM 
 
 - 메인 브랜치 클론
 
