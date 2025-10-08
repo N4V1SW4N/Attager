@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  bridge_agent:
+    build:
+      context: /home/ubuntu/바탕화면/bridge
+      dockerfile: bridge_agent/Dockerfile
+    container_name: bridge_agent
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=host.docker.internal
+      - APP_URL=http://bridge_agent:10007
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "10007:10007"
+    networks:
+      - bridge_net
+
+  bridge_orchestrator:
+    build:
+      context: /home/ubuntu/바탕화면/bridge
+      dockerfile: bridge_orchestrator/Dockerfile
+    container_name: bridge_orchestrator
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=host.docker.internal
+      - APP_URL=http://bridge_orchestrator:10000
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "10000:10000"
+    networks:
+      - bridge_net
+
+networks:
+  bridge_net:
+    driver: bridge
+
+
