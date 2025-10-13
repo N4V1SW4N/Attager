@@ -17,6 +17,7 @@ from a2a.types import (
 import sys
 # Docker 환경에서는 현재 디렉토리를 PYTHONPATH에 추가
 sys.path.insert(0, '.')
+from orchestrator.token import fetch_token
 from utils.model_config import get_model_with_fallback
 
 logger = logging.getLogger(__name__)
@@ -78,7 +79,10 @@ async def call_remote_agent(tool_context, agent_name: str, task: str):
         return {"error": f"Agent {agent_name} not found"}
 
     # 2. 클라이언트 준비
-    async with httpx.AsyncClient(timeout=30.0) as httpx_client:
+    token = await fetch_token()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    async with httpx.AsyncClient(timeout=30.0, headers=headers) as httpx_client:
         client = A2AClient(httpx_client=httpx_client, agent_card=card)
 
         # 3. 요청 메시지 (messageId 필드명 주의)
